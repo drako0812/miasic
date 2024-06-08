@@ -1,0 +1,6 @@
+parser/.antlr
+parser/json*.go
+parser/*.interp
+parser/*.tokens
+parser/*.class
+parser/*.java

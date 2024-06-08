@@ -1,0 +1,71 @@
+(*
+# MIASIC - Modern Introductory BASIC[1...]
+
+## BUILTINS
+
+### BUILTIN CONSTANTS
+
+- `NL AS STRING`: Newline Character
+
+### BUILTIN FUNCTIONS
+
+#### BASIC
+
+- `SET TAKES v AS REF <type>, newv AS <type2> RETURNS NOTHING`: Sets a new value for a variable.
+- `INC TAKES v AS REF I32 RETURNS NOTHING`: Increments the variable `v` by 1.
+- `LESS TAKES lhs AS <type>, rhs AS <type2> RETURNS BOOL`
+
+#### STRINGS
+
+- `I32TOSTR TAKES i AS I32 RETURNS STR`: Converts `i` to a string using default rules.
+
+#### ARRAYS
+
+- `LEN TAKES a AS REF ARRAY OF REF <type> RETURNS I32`: Gets the length of an array.
+
+#### IO
+
+- `PRINT TAKES s AS REF STRING RETURNS NOTHING`: Prints `s` to STDOUT.
+
+## OTHER NOTES
+
+- Array types can only be unsized if they are references.
+
+## EXAMPLESA
+
+### PRINTARGS.miasic
+
+```
+FUNCTION main TAKES args AS REF ARRAY OF STR RETURNS I32 BEGIN
+    VAR i AS I32 = 0;
+    WHILE (LESS i, (LEN args)) BEGIN
+        PRINT (I32TOSTR i) + ": " + args[i] + NL;
+        INC i;
+    END;
+    PRINT "Done.";
+END
+```
+*)
+program = { topstmnt } ;
+topstmnt = stmnt | funcdef ;
+funcdef = "FUNCTION", ident, [ arglist ], "RETURNS", type,
+          "BEGIN", { stmnt }, "END" ;
+ident = ? [_a-zA-Z][_a-zA-Z0-9]* ? ;
+arglist = "TAKES", argdecl, { ",", argdecl } ;
+argdecl = ident, "AS", type ;
+stmnt = ( vardecl | constdecl | funccall | ifstmnt | whilestmnt ), ";" ;
+type = [ "REF" ], ( simpletype | arraytype ) ;
+simpletype = "I32" | "F32" | "BOOL" | "STR" | "NOTHING" ;
+arraytype = "ARR", "OF", simpletype, [ "SIZE", exp ] ;
+vardecl = "VAR", ident, "=", exp ;
+constdecl = "CONST", ident, "=", exp ;
+funccall = ( "CALL", ident )
+         | ( ident, paramlist ) ;
+paramlist = exp, { ",", exp } ;
+ifstmnt = "IF", exp, "THEN", { stmnt },
+          { "ELSEIF", exp, "THEN", { stmnt } },
+          [ "ELSE", { stmnt } ],
+          "END" ;
+exp = litexp ;
+litexp = intlit | floatlit | boollit | strlit ;
+whilestmnt = "WHILE", exp, "BEGIN", { stmnt }, "END" ;
